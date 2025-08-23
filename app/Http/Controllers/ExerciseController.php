@@ -11,13 +11,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use function GuzzleHttp\json_decode;
 
 class ExerciseController extends Controller
 {
     public function generate(Request $request): Response
     {
-        $words = \App\Models\Word::where('user_id', Auth::id())->inRandomOrder()->limit(10)->get();
+        // Efficient random selection for large tables
+        $ids = \App\Models\Word::where('user_id', Auth::id())->pluck('id')->toArray();
+        $randomIds = [];
+        if (count($ids) > 0) {
+            $keys = (array) array_rand($ids, min(5, count($ids)));
+            foreach ($keys as $key) {
+                $randomIds[] = $ids[$key];
+            }
+        }
+        $words = \App\Models\Word::whereIn('id', $randomIds)->get();
         $wordArray = $words->pluck('word')->toArray();
         $string = implode(" ", $wordArray);
         $result = Gemini::generativeModel(model: 'gemini-2.0-flash')
@@ -36,12 +44,17 @@ class ExerciseController extends Controller
                         )
                     )
                 )
-            )->generateContent('Give me a sentence in french that I should translate in korean. It should contain no more and no less than TWO words from this list: ' . $string . ' Not more, not less. And should make sense. Only give the FRENCH sentence. dont use the KOREAN WORDS. You can extrapolate words like if you see 회의 you can use 회의하다 of course (same for 되다 words). NEVER USE HANGEUL. The sentence should make sense in french. For the translated field, give me the sentence in korean (요 polite ending.');
-
+            )->generateContent('Generate a natural French sentence that a native speaker would say, using exactly two words from this list (of course, translate these words to french, dont use it as is): ' . $string . '. \n\n
+                Instructions:\n
+                - The French sentence (the \'sentence\' field) must use only Latin alphabet characters. Do NOT use any Korean words or Hangeul characters (e.g., 가, 나, 다, etc.) in the French sentence. If you use any Korean word or Hangeul, your answer is invalid.\n
+                - Hangeul is the Korean writing system (characters like: 가, 나, 다, etc).\n- Integrate the two words seamlessly so the sentence makes sense in context.\n
+                - For the \'sentence\' field, provide only the French sentence.\n
+                - For the \'translated\' field, provide the Korean translation using the 요 polite ending.\n
+                - Example (good):\n  sentence: \'J\'ai une réunion importante demain.\'\n  translated: \'내일 중요한 회의가 있어요.\'\n
+                - Example (bad):\n  sentence: \'Le 비결 pour 오다 à bout de ce projet est simple.\' (contains Hangeul/Korean words, INVALID)\n
+                sentence: \'내일 회의가 있어요.\' (contains Hangeul, INVALID)\n- Return only the JSON array as specified in the schema.');
 
         $data = $result->json();
-        $sentence = $data[0]->sentence ?? null; // Use null as fallback if the array is empty
-        //return redirect()->route('loggedApp')->with('sentence', $sentence);
         return Inertia::render('loggedApp', [
             'sentence' => $data[0] ?? null,
         ]);
