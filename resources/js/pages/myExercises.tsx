@@ -1,12 +1,4 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
 import { MainLayout } from '@/layouts/main-layout';
-import { type SharedData } from '@/types';
-import { Textarea } from '@headlessui/react';
-import { Form, Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import * as ScrollArea from "@radix-ui/react-scroll-area"
 
 type Exercise = {
