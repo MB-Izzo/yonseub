@@ -7,6 +7,7 @@ use Gemini\Enums\DataType;
 use Gemini\Enums\ResponseMimeType;
 use Gemini\Data\Schema;
 use Gemini\Laravel\Facades\Gemini;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -14,6 +15,30 @@ use Inertia\Response;
 
 class ExerciseController extends Controller
 {
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'sentence' => 'required|string|max:255',
+            'translation' => 'required|string|max:255',
+        ]);
+
+        \App\Models\Exercise::create([
+            'sentence' => $request->sentence,
+            'translation' => $request->translation,
+            'user_id' => Auth::id(),
+        ]);
+
+        return redirect()->back()->with('success', 'Exercise created successfully!');       //
+    }
+
+    public function index()
+    {
+        $userExercises = \App\Models\Exercise::where('user_id', Auth::id())->latest()->get();
+        return Inertia::render('myExercises', [
+            'exercises' => $userExercises,
+        ]);
+    }
+
     public function generate(Request $request): Response
     {
         // Efficient random selection for large tables

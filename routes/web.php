@@ -26,6 +26,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/exercise/generate', [ExerciseController::class, 'generate'])
         ->name('exercise.generate');
+
+    Route::post('/exercise', [ExerciseController::class, 'store'])
+        ->name('exercise.store');
+
+    Route::get('/my-exercises', [ExerciseController::class, 'index'])
+        ->name('my-exercises.index');
 });
 /*
 Route::middleware('auth')->group(function () {

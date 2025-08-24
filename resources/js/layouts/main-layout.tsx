@@ -31,6 +31,7 @@ export const MainLayout = ({ children, title, ...props }: MainLayoutProps) => {
                                     ) : (
                                         <>
                                             <a href='/words' className={url === '/words' ? 'rounded-md bg-gray-950/50 px-3 py-2 text-sm font-medium text-white' : 'rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white'}>Words</a>
+                                            <a href='/my-exercises' className={url === '/my-exercises' ? 'rounded-md bg-gray-950/50 px-3 py-2 text-sm font-medium text-white' : 'rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white'}>My exercises</a>
                                             <Form method='POST' action={route('logout')} >
                                                 <button className='rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white hover:cursor-pointer'>Logout</button>
                                             </Form>

@@ -20,14 +20,31 @@ export default function LoggedApp() {
     const [sentence, setSentence] = useState(props.sentence || '');
     const [translated, setTranslated] = useState(props.translated || '');
     const [showAnswer, setShowAnswer] = useState(false);
+    const [userAnswer, setUserAnswer] = useState('');
 
-    const inputRef = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        generateExercise();
+    }, []);
 
-    const generateExercise = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const onSubmitForCorrection = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setShowAnswer(false);
-        inputRef.current.value = '';
+        router.post(route('exercise.store'), {
+            sentence: sentence,
+            translation: userAnswer,
+        }, {
+            preserveScroll: true,
+            preserveState: true,
+            preserveUrl: true,
+            replace: true,
+            onSuccess: (page) => {
+                generateExercise();
+                setUserAnswer('');
+                setShowAnswer(false);
+            },
+        });
+    }
 
+    const generateExercise = () => {
         router.post(route('exercise.generate'), {}, {
             preserveScroll: true,
             preserveState: true,
@@ -50,16 +67,19 @@ export default function LoggedApp() {
     return (
         <>
             <MainLayout title="Welcome on Yonseub!">
-                <Button type="button" onClick={(e) => generateExercise(e)} className='mb-2'>Generate sentence</Button>
                 {sentence ? (
                     <p className="mt-4 text-green-600 mb-4">{sentence}</p>
                 ) : (
-                    <p className="mt-4 text-green-600 mb-4">Generate a sentence...</p>
+                    <p className="mt-4 text-green-600 mb-4">Sentence is generating...</p>
                 )}
-                <Input type='text' ref={inputRef} />
+                <form onSubmit={onSubmitForCorrection}>
+                    <Input type='text' name='translation' value={userAnswer} onChange={(e: any) => setUserAnswer(e.target.value)} />
+                    <Input type='hidden' name='sentence' value={sentence} />
+                    <Button type='submit' className='mt-2'>Submit for correction</Button>
+                </form>
                 <Button className='mt-4' onClick={() => setShowAnswer(!showAnswer)}>{!showAnswer ? 'Show answer' : 'Hide answer'}</Button>
                 {showAnswer && <p className='mt-2'>{translated}</p>}
-            </MainLayout>
+            </MainLayout >
         </>
     );
 }
