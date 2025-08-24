@@ -39,6 +39,11 @@ class User extends Authenticatable
         return $this->hasMany(Word::class);
     }
 
+    public function exercises(): HasMany
+    {
+        return $this->hasMany(Exercise::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
