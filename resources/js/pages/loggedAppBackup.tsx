@@ -67,19 +67,6 @@ export default function LoggedApp() {
     return (
         <>
             <MainLayout title="Welcome on Yonseub!">
-                <div className='w-7xl mx-auto mt-20'>
-                    <div className='flex justify-center text-center flex-col'>
-                        <div className='font-header font-bold text-4xl'>
-                            {sentence}
-                        </div>
-                        <form onSubmit={onSubmitForCorrection}>
-                            <input type='text' name='translation' value={userAnswer} onChange={(e: any) => setUserAnswer(e.target.value)} className='bg-white border-2 border-black rounded-full mt-8 h-16 text-4xl w-full font-header px-10 py-8 font-bold text-center' />
-                            <Input type='hidden' name='sentence' value={sentence} />
-                            <button type='submit' className='mt-8 bg-yellow-400 px-8 py-4 font-header font-semibold rounded-full shadow-[-2px_4px_0px_0px_rgba(0,_0,_0,_1)] border border-black text-xl hover:bg-yellow-200 transition-all hover:cursor-pointer'>Submit for correction</button>
-                        </form>
-                    </div>
-
-                </div>
                 {sentence ? (
                     <p className="mt-4 text-green-600 mb-4">{sentence}</p>
                 ) : (
